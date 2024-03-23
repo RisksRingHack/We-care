@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      padding: 20px;
+    }
+    .weather-card {
+      max-width: 400px;
+      margin: 0 auto;
+      background-color: #f7f7f7;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .weather-icon {
+      max-width: 100px;
+      margin: 0 auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="weather-card">
+      <h1 class="text-center">Current Weather</h1>
+      <form id="location-form">
+        <div class="form-group">
+          <label for="location-input">Location:</label>
+          <input type="text" class="form-control" id="location-input" placeholder="Ex: New York">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+      <div id="weather-info" class="mt-4"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('location-form');
+    const input = document.getElementById('location-input');
+    const weatherInfo = document.getElementById('weather-info');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const location = input.value.trim();
+      
+      // variable called API Key
+      const APIKey = 'bfa2f5e0feb4c17cf3bc3f5e9671f1fe';
+      fetch(`https://api.weatherstack.com/current?access_key=${APIKey}&query=${encodeURIComponent(location)}`)
+        .then(response => response.json())
+        .then(data => {
+          renderWeatherData(data);
+        })
+        .catch(error => {
+          console.log(error);
+          weatherInfo.innerHTML = '<p class="text-danger">Please try again!</p>';
+        });
+
+      input.value = '';
+    });
+
+    function renderWeatherData(data) {
+      const location = data.location;
+      const currentWeather = data.current;
+
+      const html = `
+        <h2 class="text-center">${location.name}, ${location.country}</h2>
+        <div class="text-center">
+          <img src="${currentWeather.weather_icons[0]}" alt="${currentWeather.weather_descriptions[0]}" class="weather-icon">
+          <p>${currentWeather.weather_descriptions[0]}</p>
+          <p>Temperature: ${currentWeather.temperature}°C</p>
+          <p>Feels Like: ${currentWeather.feelslike}°C</p>
+          <p>Wind Speed: ${currentWeather.wind_speed} km/s</p>
+          <p>Humidity: ${currentWeather.humidity}%</p>
+          <p>UV Index: ${currentWeather.uv_index}</p>
+          <p>Observation Time: ${currentWeather.observation_time}</p>
+        </div>
+      `;
+
+      weatherInfo.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
